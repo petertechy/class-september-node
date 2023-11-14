@@ -1,38 +1,62 @@
-const express = require("express")
-const ejs = require("ejs")
-const app = express()
-app.set("view engine", "ejs")
+const express = require("express");
+const ejs = require("ejs");
+const mongoose = require("mongoose");
+const app = express();
+app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-const PORT = 3100
+const PORT = 3100;
 
-app.listen(PORT, ()=>{
-    console.log("App is started on PORT:" + PORT)
-})
+const MONGO_URI =
+  "mongodb+srv://adeboysina:geYzZzKe6bTCfnVI@node-september.p0ryrox.mongodb.net/?retryWrites=true&w=majority";
 
-let taskArray =[]
-app.get("/", (req, res)=>{
-    res.render("index")
-})
+mongoose
+  .connect(MONGO_URI)
+  .then(() => {
+    console.log("Mongo DB Connected Successfully");
+  })
+  .catch(() => {
+    console.log("There was an error connecting mongo db");
+  });
 
-app.get("/display", (req, res)=>{
-    res.render("display", {task: taskArray})
-})
+const taskSchema = mongoose.Schema({
+  task: String,
+  description: String,
+  location: String,
+  priority: String,
+  createdAt: Date,
+});
 
-app.get("/edit", (req, res)=>{
-    res.render("edit")
-})
+const taskModel = mongoose.model("taskCollection", taskSchema);
 
+app.listen(PORT, () => {
+  console.log("App is started on PORT:" + PORT);
+});
 
-app.post("/submit-task", (req,res)=>{
-    // console.log(req.body)
-    taskArray.push(req.body)
-    res.render("display", {task: taskArray})
-})
+let taskArray = [];
+app.get("/", (req, res) => {
+  res.render("index");
+});
 
-app.post("/delete",(req, res)=>{
-    const index = req.body.index
+app.get("/display", async (req, res) => {
+  console.log(" I am being run");
+  const tasks = await taskModel.find();
+  res.render("display", { task: tasks });
+});
 
-    console.log(index)
-    taskArray.splice(index, 1)
-    res.render("display", {task: taskArray})
-})
+app.get("/edit", (req, res) => {
+  res.render("edit");
+});
+
+app.post("/submit-task", (req, res) => {
+  const taskObj = { ...req.body, createdAt: Date.now() };
+  console.log(taskObj);
+  const form = new taskModel(taskObj);
+  form.save();
+  res.render("index");
+});
+
+app.post("/delete", async (req, res) => {
+  const index = req.body.index;
+  const deleteItem = await taskModel.findByIdAndDelete(index);
+  res.redirect("/display");
+});
