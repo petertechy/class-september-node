@@ -4,7 +4,7 @@ const mongoose = require("mongoose");
 const app = express();
 app.set("view engine", "ejs");
 app.use(express.urlencoded({ extended: true }));
-const PORT = 3100;
+const PORT = 3200;
 const {
   displayTask,
   editTask,
@@ -14,7 +14,7 @@ const {
 
 const taskRouter = require("./routes/task.routes")
 const MONGO_URI =
-  "mongodb+srv://adeboysina:geYzZzKe6bTCfnVI@node-september.p0ryrox.mongodb.net/?retryWrites=true&w=majority";
+ "mongodb+srv://petertechy01:Ayobami1999@myproject.9q61gyz.mongodb.net/?retryWrites=true&w=majority"
 
 mongoose
   .connect(MONGO_URI)
